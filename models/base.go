@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/jinzhu/gorm"
+	// Blank Import
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/joho/godotenv"
 )
@@ -40,5 +41,5 @@ func init() {
 	db.Debug().AutoMigrate(&Account{}, &Contact{})
 }
 
-// Returns a handle to the DB bject
+// GetDB : returns the database
 func GetDB() *gorm.DB { return db }

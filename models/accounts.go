@@ -12,7 +12,8 @@ import (
 
 // Token : JWT Token Claim
 type Token struct {
-	UserID uint
+	UserID   uint
+	Username string
 	jwt.StandardClaims
 }
 
