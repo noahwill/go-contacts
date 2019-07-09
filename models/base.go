@@ -28,7 +28,7 @@ func init() {
 	dbHost := os.Getenv("db_host")
 
 	// Connection String
-	dbURI := fmt.Sprintf("host=%s user=%s dbname=%s sslmode=disable password=%s",
+	dbURI := fmt.Sprintf("host=%s \n user=%s \n dbname=%s \n sslmode=disable \n password=%s",
 		dbHost, username, dbName, password)
 	fmt.Println(dbURI)
 

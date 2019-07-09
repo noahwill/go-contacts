@@ -7,22 +7,13 @@ import (
 	"net/http"
 )
 
-// JSONValidate : validates the JSON data from client
-func JSONValidate(w http.ResponseWriter, r *http.Request) (*models.Account, error) {
+// CreateAccount : decode JSON request into an account
+var CreateAccount = func(w http.ResponseWriter, r *http.Request) {
 	account := &models.Account{}
-	err := json.NewDecoder(r.Body).Decode(account) // decode the request body into struct
+	// Decode request body into a struct
+	err := json.NewDecoder(r.Body).Decode(account)
 	if err != nil {
 		u.Respond(w, u.Message(false, "Invalid request"))
-		return nil, err
-	}
-
-	return account, nil
-}
-
-// CreateAccount ...
-var CreateAccount = func(w http.ResponseWriter, r *http.Request) {
-	account, err := JSONValidate(w, r)
-	if err != nil {
 		return
 	}
 
@@ -30,10 +21,13 @@ var CreateAccount = func(w http.ResponseWriter, r *http.Request) {
 	u.Respond(w, resp)
 }
 
-// Authenticate ...
+// Authenticate : uses JSON decoded account to log in
 var Authenticate = func(w http.ResponseWriter, r *http.Request) {
-	account, err := JSONValidate(w, r)
+	account := &models.Account{}
+	// Decode request body into a struct
+	err := json.NewDecoder(r.Body).Decode(account)
 	if err != nil {
+		u.Respond(w, u.Message(false, "Invalid request"))
 		return
 	}
 

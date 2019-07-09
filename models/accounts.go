@@ -12,8 +12,7 @@ import (
 
 // Token : JWT Token Claim
 type Token struct {
-	UserID   uint
-	Username string
+	UserID uint
 	jwt.StandardClaims
 }
 
@@ -39,7 +38,7 @@ func (account *Account) Validate() (map[string]interface{}, bool) {
 
 	err := GetDB().Table("accounts").Where("email = ?", account.Email).First(temp).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
-		return u.Message(false, "Connection error, Please retry"), false
+		return u.Message(false, "Connection error, Please retry b"), false
 	}
 
 	if temp.Email != "" {
@@ -47,7 +46,6 @@ func (account *Account) Validate() (map[string]interface{}, bool) {
 	}
 
 	return u.Message(false, "Requirement Passed"), true
-
 }
 
 // Create : new account and JWT token to send back to client
@@ -86,7 +84,7 @@ func Login(email, password string) map[string]interface{} {
 		if err == gorm.ErrRecordNotFound {
 			return u.Message(false, "Email address not found")
 		}
-		return u.Message(false, "Connection error, Please Retry")
+		return u.Message(false, "Connection error, Please Retry a")
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(account.Password), []byte(password))

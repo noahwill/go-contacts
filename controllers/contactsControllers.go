@@ -5,9 +5,6 @@ import (
 	"go-contacts/models"
 	u "go-contacts/utils"
 	"net/http"
-	"strconv"
-
-	"github.com/gorilla/mux"
 )
 
 // CreateContact : Decode JSON body into a Contact struct
@@ -30,15 +27,8 @@ var CreateContact = func(w http.ResponseWriter, r *http.Request) {
 
 // GetContactsFor ...
 var GetContactsFor = func(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	id, err := strconv.Atoi(params["id"])
-	if err != nil {
-		// Passed path param is not an integer
-		u.Respond(w, u.Message(false, "There was an error in your request"))
-		return
-	}
-
-	data := models.GetContacts(uint(id))
+	id := r.Context().Value("user").(uint)
+	data := models.GetContacts(id)
 	resp := u.Message(true, "Success")
 	resp["data"] = data
 	u.Respond(w, resp)

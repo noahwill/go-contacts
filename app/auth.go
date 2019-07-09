@@ -23,15 +23,6 @@ var JwTAuthentication = func(next http.Handler) http.Handler {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		SetHeaderAndRespond := func(w http.ResponseWriter, forbidden bool, status bool, message string) {
-			response := u.Message(status, message)
-			if forbidden {
-				w.WriteHeader(http.StatusForbidden)
-			}
-			w.Header().Add("Content-Type", "application/json")
-			u.Respond(w, response)
-		}
-
 		// List of endpoints (identifiers) that don't require auth
 		notAuth := []string{"/api/user/new", "/api/user/login"}
 		requestPath := r.URL.Path
@@ -46,7 +37,9 @@ var JwTAuthentication = func(next http.Handler) http.Handler {
 
 		tokenHeader := r.Header.Get("Authorization")
 		if tokenHeader == "" { // Missing token, returns with error code 403 Unauthorized
-			SetHeaderAndRespond(w, false, false, "Missing authentication token")
+			response := u.Message(false, "Missing authentication token")
+			w.Header().Add("Content-Type", "application/json")
+			u.Respond(w, response)
 			return
 		}
 
@@ -54,7 +47,10 @@ var JwTAuthentication = func(next http.Handler) http.Handler {
 		// Check if the retrieved token matches this format
 		split := strings.Split(tokenHeader, " ")
 		if len(split) != 2 {
-			SetHeaderAndRespond(w, true, false, "Invalid/Malformed authentication token")
+			response := u.Message(false, "Invalid/Malformed authentication token")
+			w.WriteHeader(http.StatusForbidden)
+			w.Header().Add("Content-Type", "application/json")
+			u.Respond(w, response)
 			return
 		}
 
@@ -66,17 +62,23 @@ var JwTAuthentication = func(next http.Handler) http.Handler {
 		})
 
 		if err != nil { // Malformed toke, returns with http code 403
-			SetHeaderAndRespond(w, true, false, "Malformed authentication token")
+			response := u.Message(false, "Malformed authentication token")
+			w.WriteHeader(http.StatusForbidden)
+			w.Header().Add("Content-Type", "application/json")
+			u.Respond(w, response)
 			return
 		}
 
 		if !token.Valid { // Invalid token, may not sign onto server
-			SetHeaderAndRespond(w, true, false, "Invalid authentication token")
+			response := u.Message(false, "Invalid authentication token")
+			w.WriteHeader(http.StatusForbidden)
+			w.Header().Add("Content-Type", "application/json")
+			u.Respond(w, response)
 			return
 		}
 
 		// Proceed with request, set caller to the user retrieved from the token
-		fmt.Printf("User %s", tk.Username)
+		fmt.Printf("User %d", tk.UserID)
 		contxt := context.WithValue(r.Context(), "user", tk.UserID)
 		r = r.WithContext(contxt)
 		next.ServeHTTP(w, r)

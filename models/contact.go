@@ -41,7 +41,7 @@ func (contact *Contact) Create() map[string]interface{} {
 
 	GetDB().Create(contact)
 
-	resp := u.Message(true, "success")
+	resp := u.Message(true, "Success")
 	resp["contact"] = contact
 	return resp
 }
