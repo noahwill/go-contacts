@@ -38,7 +38,7 @@ func (account *Account) Validate() (map[string]interface{}, bool) {
 
 	err := GetDB().Table("accounts").Where("email = ?", account.Email).First(temp).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
-		return u.Message(false, "Connection error, Please retry b"), false
+		return u.Message(false, "Connection error, Please retry"), false
 	}
 
 	if temp.Email != "" {
@@ -84,7 +84,7 @@ func Login(email, password string) map[string]interface{} {
 		if err == gorm.ErrRecordNotFound {
 			return u.Message(false, "Email address not found")
 		}
-		return u.Message(false, "Connection error, Please Retry a")
+		return u.Message(false, "Connection error, Please retry")
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(account.Password), []byte(password))
