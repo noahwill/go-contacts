@@ -30,6 +30,7 @@ var JwTAuthentication = func(next http.Handler) http.Handler {
 			}
 			w.Header().Add("Content-Type", "application/json")
 			u.Respond(w, response)
+			return
 		}
 
 		// List of endpoints (identifiers) that don't require auth
@@ -47,7 +48,6 @@ var JwTAuthentication = func(next http.Handler) http.Handler {
 		tokenHeader := r.Header.Get("Authorization")
 		if tokenHeader == "" { // Missing token, returns with error code 403 Unauthorized
 			SetHeaderAndRespond(w, false, false, "Missing authentication token")
-			return
 		}
 
 		// Token normally has format 'Bearer {token-body}'
@@ -55,7 +55,6 @@ var JwTAuthentication = func(next http.Handler) http.Handler {
 		split := strings.Split(tokenHeader, " ")
 		if len(split) != 2 {
 			SetHeaderAndRespond(w, true, false, "Invalid/Malformed authentication token")
-			return
 		}
 
 		tokenPart := split[1]
@@ -67,16 +66,14 @@ var JwTAuthentication = func(next http.Handler) http.Handler {
 
 		if err != nil { // Malformed toke, returns with http code 403
 			SetHeaderAndRespond(w, true, false, "Malformed authentication token")
-			return
 		}
 
 		if !token.Valid { // Invalid token, may not sign onto server
 			SetHeaderAndRespond(w, true, false, "Invalid authentication token")
-			return
 		}
 
 		// Proceed with request, set caller to the user retrieved from the token
-		fmt.Sprintf("User %d", tk.UserID)
+		fmt.Printf("User %d", tk.UserID)
 		contxt := context.WithValue(r.Context(), "user", tk.UserID)
 		r = r.WithContext(contxt)
 		next.ServeHTTP(w, r)
