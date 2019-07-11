@@ -17,9 +17,9 @@ var db *gorm.DB
 // (init are auto called by Go)
 func init() {
 	// Load .env file
-	e := godotenv.Load()
-	if e != nil {
-		fmt.Print(e)
+	err := godotenv.Load()
+	if err != nil {
+		fmt.Print(err)
 	}
 
 	username := os.Getenv("db_user")

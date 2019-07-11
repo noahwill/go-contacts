@@ -24,6 +24,11 @@ type Account struct {
 	Token    string `json:"token";sql:"-"`
 }
 
+// AccErr : populates the Account email, returns an error if needed
+func AccErr(acc *Account) error {
+	return GetDB().Table("accounts").Where("email = ?", acc.Email).First(acc).Error
+}
+
 // Validate : Ensures valid email/password sent from clients
 func (account *Account) Validate() (map[string]interface{}, bool) {
 	if !strings.Contains(account.Email, "@") {
@@ -36,8 +41,9 @@ func (account *Account) Validate() (map[string]interface{}, bool) {
 
 	temp := &Account{}
 
-	err := GetDB().Table("accounts").Where("email = ?", account.Email).First(temp).Error
-	if err != nil && err != gorm.ErrRecordNotFound {
+	// Not possible at line 87 because this statement does not save the err
+	// after it is evaluated. At 96, the err from 87 is needed again
+	if err := AccErr(temp); err != nil && err != gorm.ErrRecordNotFound {
 		return u.Message(false, "Connection error, Please retry"), false
 	}
 
@@ -79,7 +85,7 @@ func (account *Account) Create() map[string]interface{} {
 // Login : authenticate an existing user, generate JWT token if authenticated
 func Login(email, password string) map[string]interface{} {
 	account := &Account{}
-	err := GetDB().Table("accounts").Where("email = ?", email).First(account).Error
+	err := AccErr(account)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return u.Message(false, "Email address not found")
@@ -114,6 +120,7 @@ func GetUser(u int) *Account {
 		return nil
 	}
 
+	// Success
 	acc.Password = ""
 	return acc
 }
