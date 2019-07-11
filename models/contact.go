@@ -49,8 +49,7 @@ func (contact *Contact) Create() map[string]interface{} {
 // GetContact : gets a contact associated with a specific id
 func GetContact(id uint) *Contact {
 	contact := &Contact{}
-	err := GetDB().Table("contacts").Where("id = ?", id).First(contact).Error
-	if err != nil {
+	if err := GetDB().Table("contacts").Where("id = ?", id).First(contact).Error; err != nil {
 		return nil
 	}
 	return contact
@@ -59,8 +58,7 @@ func GetContact(id uint) *Contact {
 // GetContacts : gets all the contacts associated with a user id
 func GetContacts(user uint) []*Contact {
 	contacts := make([]*Contact, 0)
-	err := GetDB().Table("contacts").Where("user_id = ?", user).Find(&contacts).Error
-	if err != nil {
+	if err := GetDB().Table("contacts").Where("user_id = ?", user).Find(&contacts).Error; err != nil {
 		fmt.Println(err)
 		return nil
 	}

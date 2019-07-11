@@ -14,8 +14,7 @@ var CreateContact = func(w http.ResponseWriter, r *http.Request) {
 	user := r.Context().Value("user").(uint)
 	contact := &models.Contact{}
 
-	err := json.NewDecoder(r.Body).Decode(contact)
-	if err != nil {
+	if err := json.NewDecoder(r.Body).Decode(contact); err != nil {
 		u.Respond(w, u.Message(false, "Error while decoding request body"))
 		return
 	}
