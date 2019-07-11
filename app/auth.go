@@ -23,12 +23,11 @@ var JwTAuthentication = func(next http.Handler) http.Handler {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		SetHeaderAndRespond := func(w http.ResponseWriter, forbidden bool, status bool, message string) {
+		AuthRespond := func(w http.ResponseWriter, forbidden bool, status bool, message string) {
 			response := u.Message(status, message)
 			if forbidden {
 				w.WriteHeader(http.StatusForbidden)
 			}
-			w.Header().Add("Content-Type", "application/json")
 			u.Respond(w, response)
 			return
 		}
@@ -47,14 +46,14 @@ var JwTAuthentication = func(next http.Handler) http.Handler {
 
 		tokenHeader := r.Header.Get("Authorization")
 		if tokenHeader == "" { // Missing token, returns with error code 403 Unauthorized
-			SetHeaderAndRespond(w, false, false, "Missing authentication token")
+			AuthRespond(w, false, false, "Missing authentication token")
 		}
 
 		// Token normally has format 'Bearer {token-body}'
 		// Check if the retrieved token matches this format
 		split := strings.Split(tokenHeader, " ")
 		if len(split) != 2 {
-			SetHeaderAndRespond(w, true, false, "Invalid/Malformed authentication token")
+			AuthRespond(w, true, false, "Invalid/Malformed authentication token")
 		}
 
 		tokenPart := split[1]
@@ -65,11 +64,11 @@ var JwTAuthentication = func(next http.Handler) http.Handler {
 		})
 
 		if err != nil { // Malformed toke, returns with http code 403
-			SetHeaderAndRespond(w, true, false, "Malformed authentication token")
+			AuthRespond(w, true, false, "Malformed authentication token")
 		}
 
 		if !token.Valid { // Invalid token, may not sign onto server
-			SetHeaderAndRespond(w, true, false, "Invalid authentication token")
+			AuthRespond(w, true, false, "Invalid authentication token")
 		}
 
 		// Proceed with request, set caller to the user retrieved from the token
